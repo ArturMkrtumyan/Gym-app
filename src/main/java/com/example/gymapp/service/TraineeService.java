@@ -4,6 +4,7 @@ import com.example.gymapp.dto.auth.AuthDTO;
 import com.example.gymapp.dto.trainee.TraineeCreateRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeResponseDTO;
+import com.example.gymapp.dto.trainer.TrainerResponseDTO;
 import com.example.gymapp.dto.training.TrainingGetListRequestDTO;
 import com.example.gymapp.dto.training.TrainingResponseDTO;
 import com.example.gymapp.exception.TraineeNotFoundException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -102,4 +104,6 @@ public class TraineeService {
                 .map(training -> modelMapper.map(training, TrainingResponseDTO.class))
                 .toList();
     }
+
+
 }

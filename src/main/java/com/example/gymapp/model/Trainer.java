@@ -16,5 +16,4 @@ public final class Trainer extends User {
     private List<Training> trainingList;
     @ManyToMany(mappedBy = "trainers")
     private Set<Trainee> trainees;
-
 }

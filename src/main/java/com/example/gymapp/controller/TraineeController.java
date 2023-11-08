@@ -4,6 +4,7 @@ import com.example.gymapp.dto.auth.AuthDTO;
 import com.example.gymapp.dto.trainee.TraineeCreateRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeResponseDTO;
+import com.example.gymapp.dto.trainer.TrainerResponseDTO;
 import com.example.gymapp.dto.training.TrainingGetListRequestDTO;
 import com.example.gymapp.dto.training.TrainingResponseDTO;
 import com.example.gymapp.service.TraineeService;
@@ -12,12 +13,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -118,7 +123,22 @@ public class TraineeController {
 
         return ResponseEntity.ok().body(responseDTO);
     }
-
+//    @PutMapping("/{id}/trainers")
+//    @Operation(summary = "Update trainee's list of assigned trainers",
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "List of trainers successfully updated"),
+//                    @ApiResponse(responseCode = "404", description = "Trainee not found"),
+//                    @ApiResponse(responseCode = "422", description = "Bad input, check body for error messages")})
+//    public ResponseEntity<?> handleUpdateTraineeTrainerList(@PathVariable("id") long id,
+//                                                            @RequestBody  TraineeRequestDTO traineeDTO) {
+//
+//
+//        List<TrainerResponseDTO> updatedTrainersList = traineeService.updateTrainerList( id, traineeDTO);
+//
+//
+//
+//        return ResponseEntity.ok(updatedTrainersList);
+//    }
 }
 
 

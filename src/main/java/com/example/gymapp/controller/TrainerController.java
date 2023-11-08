@@ -84,7 +84,7 @@ public class TrainerController {
                     @ApiResponse(responseCode = "404", description = "Trainer not found"),
                     @ApiResponse(responseCode = "422", description = "Bad input, check body for error messages")
             })
-    public ResponseEntity<?> handleTrainerActivationStatus(@PathVariable("id") Long id, @Valid @RequestBody AuthDTO authDTO,
+    public ResponseEntity<? super AuthDTO> handleTrainerActivationStatus(@PathVariable("id") Long id, @Valid @RequestBody AuthDTO authDTO,
                                                            @RequestParam(name = "isActive", required = true) Boolean isActive) {
         trainerService.changeActivationStatus(id, isActive, authDTO);
         return ResponseEntity.ok().build();
@@ -97,7 +97,7 @@ public class TrainerController {
                     @ApiResponse(responseCode = "403", description = "Access denied (wrong ID?)"),
                     @ApiResponse(responseCode = "404", description = "Trainer not found"),
                     @ApiResponse(responseCode = "422", description = "Username or password is null")})
-    public ResponseEntity<?> getTrainingsWithFiltering(@PathVariable("id") Long id,
+    public ResponseEntity<List<TrainingResponseDTO>> getTrainingsWithFiltering(@PathVariable("id") Long id,
                                                        @RequestBody @Valid TrainingGetListRequestDTO requestDTO) {
         List<TrainingResponseDTO> responseDTO= trainerService.getTrainingsWithFiltering(id, requestDTO);
 
