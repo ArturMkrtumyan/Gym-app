@@ -2,11 +2,12 @@ package com.example.gymapp.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
 @Data
-@Inheritance(strategy = InheritanceType.JOINED)
+@NoArgsConstructor
 @Table(name = "User_")
 public class User {
     @Id

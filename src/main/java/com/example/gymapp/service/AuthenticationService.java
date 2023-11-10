@@ -1,61 +1,40 @@
 package com.example.gymapp.service;
 
 import com.example.gymapp.dto.auth.PasswordChangeRequestDTO;
-import com.example.gymapp.exception.ForbiddenException;
 import com.example.gymapp.exception.UnauthorizedException;
 import com.example.gymapp.model.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.webjars.NotFoundException;
 
-import java.util.Objects;
-
+@Log4j2
 @Service
 @RequiredArgsConstructor
-public final class AuthenticationService {
+public class AuthenticationService {
     private final UserService userService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
-    public boolean authenticate(Long id, String username, String password) {
+    public void authenticate(Long id, String username, String password) {
         checkPassword(username, password);
-        checkAccess(id, username);
-        return true;
     }
 
-    public boolean updatePassword(Long id, PasswordChangeRequestDTO requestDTO) {
-        if (authenticate(id, requestDTO.getUsername(), requestDTO.getOldPassword())) {
-            return userService.updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword());
+    public void updatePassword(Long id, PasswordChangeRequestDTO requestDTO) {
+        authenticate(id, requestDTO.getUsername(), requestDTO.getOldPassword());
+
+        if (!userService.updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword())) {
+            throw new NotFoundException("User not found");
         }
-        return false;
-    }
-
-    private User findUserByUsername(String username) {
-        return userService.findByUsername(username)
-                .orElseThrow(() -> new UnauthorizedException("No user found for authentication"));
     }
 
     private void checkPassword(String username, String password) {
-        User user = findUserByUsername(username);
+        User user = userService.findByUsername(username).orElseThrow(() -> new UnauthorizedException("No user found for authentication"));
         if (!user.getPassword().equals(password)) {
             handleAuthenticationFailure(username);
         }
     }
 
-    private void checkAccess(Long id, String username) {
-        User user = findUserByUsername(username);
-        if (!Objects.equals(user.getId(), id)) {
-            handleAccessDenied(username);
-        }
-    }
-
     private void handleAuthenticationFailure(String username) {
-        LOGGER.warn("{} — Bad login attempt with username {}", username);
+        log.warn("{} — Bad login attempt", username);
         throw new UnauthorizedException("Bad login attempt");
-    }
-
-    private void handleAccessDenied(String username) {
-        LOGGER.warn("{} — Attempt to perform an action with no access with username {}", username);
-        throw new ForbiddenException("Access denied");
     }
 }

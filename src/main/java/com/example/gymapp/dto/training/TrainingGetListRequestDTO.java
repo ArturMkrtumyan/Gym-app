@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public final class TrainingGetListRequestDTO {
+public  class TrainingGetListRequestDTO {
     @NotBlank(message = "Username cannot be empty")
     private String username;
     @NotBlank(message = "Password cannot be empty")
@@ -18,5 +18,4 @@ public final class TrainingGetListRequestDTO {
     private String trainerName;
     private String traineeName;
     private Long trainingType;
-
 }

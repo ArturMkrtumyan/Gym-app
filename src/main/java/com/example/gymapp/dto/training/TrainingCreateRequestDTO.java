@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public final class TrainingCreateRequestDTO {
+public  class TrainingCreateRequestDTO {
     @NotBlank(message = "Trainee username cannot be empty")
     private String traineeUsername;
     @NotBlank(message = "Trainer username cannot be empty")
@@ -22,5 +22,5 @@ public final class TrainingCreateRequestDTO {
     @FutureOrPresent(message = "Training date must be today or in the future")
     private LocalDate trainingDate;
     @Min(1)
-    private int trainingDuration;
+    private Integer trainingDuration;
 }

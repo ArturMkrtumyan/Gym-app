@@ -1,10 +1,11 @@
 package com.example.gymapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -12,14 +13,22 @@ import java.util.Set;
 
 @Entity
 @Data
-public final class Trainee extends User {
-    @Past(message = "Date of birth must be in the past")
+@NoArgsConstructor
+public  class Trainee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    private User user;
     private LocalDate dateOfBirth;
     @Column
     private String address;
+    @JsonIgnore()
     @OneToMany(mappedBy = "trainee", cascade = CascadeType.REMOVE)
     private List<Training> trainingList;
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "trainee_trainer",
             joinColumns = @JoinColumn(name = "trainee_id"),

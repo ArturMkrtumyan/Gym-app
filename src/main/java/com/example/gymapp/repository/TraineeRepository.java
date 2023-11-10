@@ -13,19 +13,18 @@ import java.util.Optional;
 
 @Repository
 public interface TraineeRepository extends JpaRepository<Trainee, Long> {
-    Trainee findTraineeById(Long id);
+    Optional<Trainee> findByUserUsername(String username);
 
-    boolean existsByUsername(String username);
 
-    Optional<Trainee> findByUsername(String username);
+//    @Query("SELECT t FROM Trainee t LEFT JOIN FETCH t.trainers tr " +
+//            "WHERE t.user.username = :username " +
+//            "AND tr.specialization.typeName LIKE %:specializationName% " +
+//            "AND t.user.firstName LIKE %:traineeName%")
+//    List<Training> findByUserUsernameAndTrainers_Specialization_TypeNameContainingAndUser_FirstNameContaining(
+//            @Param("username") String username,
+//            @Param("specializationName") String specializationName,
+//            @Param("traineeName") String traineeName
+//    );
 
-    @Query("SELECT t FROM Trainee t LEFT JOIN FETCH t.trainers WHERE t.username = :username")
-    Trainee findTraineeProfileByUsername(@Param("username") String username);
-
-    List<Training> findByTraineeUsernameAndTrainerFirstNameContainingAndTraineeFirstNameContaining(
-            String username,
-            String trainerName,
-            String traineeName
-    );
 
 }

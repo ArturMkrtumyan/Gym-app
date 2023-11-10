@@ -1,7 +1,7 @@
 package com.example.gymapp.controller;
 
 import com.example.gymapp.dto.training.TrainingCreateRequestDTO;
-import com.example.gymapp.service.TrainerService;
+import com.example.gymapp.model.Training;
 import com.example.gymapp.service.TrainingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,7 +26,7 @@ public class TrainingController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Training created successfully"),
                     @ApiResponse(responseCode = "422", description = "Bad input, check body for error messages")})
-    public ResponseEntity<?> addTraining(
+    public ResponseEntity<Training> addTraining(
             @RequestBody @Valid TrainingCreateRequestDTO trainingDTO
     ) {
         var createdTraining = trainingService.createTraining(trainingDTO);

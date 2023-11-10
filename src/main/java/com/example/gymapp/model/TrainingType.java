@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public final class TrainingType {
+public  class TrainingType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

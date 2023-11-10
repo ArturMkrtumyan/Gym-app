@@ -20,10 +20,15 @@ public interface TrainerRepository extends JpaRepository<Trainer, Long> {
 
     @Query("SELECT t FROM Trainer t JOIN t.trainees trainee WHERE trainee.id = :traineeId")
     Set<Trainer> findTrainersByTraineeId(@Param("traineeId") Long traineeId);
-    Optional<Trainer> findByUsername(String username);
 
-    @Query("SELECT t FROM Trainer t LEFT JOIN FETCH t.trainees WHERE t.username = :username")
+    Optional<Trainer> findByUserUsername(String username);
+
+    @Query("SELECT t FROM Trainer t LEFT JOIN FETCH t.trainees WHERE t.user.username = :username")
     Trainer findTrainerProfileByUsername(@Param("username") String username);
 
-    List<Training> findByTraineeUsernameAndTrainerFirstNameContainingAndTraineeFirstNameContaining(String username, String trainerName, String traineeName);
+//    List<Training> findByUserUsernameAndSpecializationNameContainingAndTraineeFirstNameContaining(
+//            String username,
+//            String specializationName,
+//            String traineeName
+//    );
 }

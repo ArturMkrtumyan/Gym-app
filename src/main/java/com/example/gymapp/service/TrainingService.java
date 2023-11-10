@@ -7,7 +7,6 @@ import com.example.gymapp.model.Trainee;
 import com.example.gymapp.model.Trainer;
 import com.example.gymapp.model.Training;
 import com.example.gymapp.repository.TrainingRepository;
-import com.example.gymapp.repository.TrainingTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,17 +31,14 @@ public class TrainingService {
             throw new NoSuchTrainerExistException("Trainer with username '" + trainingDTO.getTrainerUsername() + "' does not exist.");
 
         }
-
-        Training newTraining = Training.builder()
-                .trainee(traineeOpt.get())
-                .trainer(trainerOpt.get())
-                .trainingName(trainingDTO.getTrainingName())
-                .trainingType(trainerOpt.get().getSpecialization())
-                .trainingDate(trainingDTO.getTrainingDate())
-                .trainingDuration(trainingDTO.getTrainingDuration())
-                .build();
+        Training newTraining = new Training();
+        newTraining.setTrainee(traineeOpt.get());
+        newTraining.setTrainer(trainerOpt.get());
+        newTraining.setTrainingName(trainingDTO.getTrainingName());
+        newTraining.setTrainingType(trainerOpt.get().getSpecialization());
+        newTraining.setTrainingDate(trainingDTO.getTrainingDate());
+        newTraining.setTrainingDuration(trainingDTO.getTrainingDuration());
         trainingRepository.save(newTraining);
-
         return newTraining;
     }
 }

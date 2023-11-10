@@ -16,7 +16,6 @@ import java.util.OptionalInt;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private static final int PASSWORD_LENGTH = 10;
 
@@ -45,8 +44,15 @@ public class UserService {
     @Transactional
     public boolean updatePassword(String username, String newPassword) {
         try {
-            userRepository.updatePasswordByUsername(username, newPassword);
-            return true;
+            // You can find the User by username and then update the password.
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user != null) {
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             return false;
         }
