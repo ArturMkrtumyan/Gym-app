@@ -49,7 +49,6 @@ class TraineeServiceTest {
 
     @Test
     void testCreateTrainee() {
-        // Arrange
         TraineeCreateRequestDTO traineeDTO = new TraineeCreateRequestDTO();
         traineeDTO.setFirstName("John");
         traineeDTO.setLastName("Doe");

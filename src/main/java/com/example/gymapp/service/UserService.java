@@ -44,7 +44,6 @@ public class UserService {
     @Transactional
     public boolean updatePassword(String username, String newPassword) {
         try {
-            // You can find the User by username and then update the password.
             User user = userRepository.findByUsername(username).orElse(null);
             if (user != null) {
                 user.setPassword(newPassword);
