@@ -108,7 +108,7 @@ public class TraineeController {
     @Operation(summary = "Update trainee's list of assigned trainers",
             responses = {
                     @ApiResponse(responseCode = "200", description = "List of trainers successfully updated"),
-                    @ApiResponse(responseCode = "404", description = "Trainee not found"),})
+                    @ApiResponse(responseCode = "404", description = "Trainee not found")})
     public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainerList(@PathVariable("id") Long id,
                                                                              @RequestBody TraineeRequestDTO traineeDTO) {
         var updatedTrainersList = traineeService.updateTrainerList(id, traineeDTO);

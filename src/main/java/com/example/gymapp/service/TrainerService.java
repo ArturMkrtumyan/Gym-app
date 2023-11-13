@@ -6,6 +6,7 @@ import com.example.gymapp.dto.trainer.TrainerResponseDTO;
 import com.example.gymapp.dto.trainer.UpdateTrainerDto;
 import com.example.gymapp.dto.training.TrainingGetListRequestDTO;
 import com.example.gymapp.dto.training.TrainingResponseDTO;
+import com.example.gymapp.exception.NoSuchTrainerExistException;
 import com.example.gymapp.exception.TrainerNotFoundException;
 import com.example.gymapp.model.Trainer;
 import com.example.gymapp.model.TrainingType;
@@ -116,6 +117,17 @@ public class TrainerService {
 
     public List<Trainer> findAll() {
        return trainerRepository.findAll();
+    }
+    public List<Trainer> getVerifiedTrainersByUsernameList(List<String> trainerUsernames) {
+        List<Trainer> verifiedList = findAll().stream()
+                .filter(trainer -> trainerUsernames.contains(trainer.getUser().getUsername()))
+                .toList();
+
+        if (verifiedList.isEmpty()) {
+            throw new NoSuchTrainerExistException("Such Trainer is not exist");
+        }
+
+        return verifiedList;
     }
 }
 

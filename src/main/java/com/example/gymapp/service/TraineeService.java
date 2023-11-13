@@ -18,14 +18,12 @@ import com.example.gymapp.repository.UserRepository;
 import com.example.gymapp.util.TrainingFilterUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
+import java.util.*;
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class TraineeService {
@@ -66,6 +64,7 @@ public class TraineeService {
     public TraineeResponseDTO updateTrainee(TraineeRequestDTO traineeDTO) {
         Trainee existingTrainee = traineeRepository.findByUserUsername(traineeDTO.getUsername())
                 .orElseThrow(() -> new TraineeNotFoundException("Trainee not found for username: " + traineeDTO.getUsername()));
+        authenticationService.authenticate(existingTrainee.getUser().getId(), traineeDTO.getUsername(), traineeDTO.getPassword());
 
         User user = existingTrainee.getUser();
         user.setFirstName(traineeDTO.getFirstName());
@@ -138,12 +137,38 @@ public class TraineeService {
                 .toList();
     }
 
-    public List<TrainerResponseDTO> updateTrainerList(Long id, TraineeRequestDTO traineeDTO) {
-        return new ArrayList<>();
+    @Transactional
+    public List<TrainerResponseDTO> updateTrainerList( Long id, TraineeRequestDTO traineeRequestDTO) {
+        List<Trainer> updatedList =
+                trainerService.getVerifiedTrainersByUsernameList(traineeRequestDTO.getTrainers());
+
+        Optional<Trainee> traineeOpt = traineeRepository.findById(id);
+
+        if (traineeOpt.isPresent()) {
+            Trainee trainee = traineeOpt.get();
+            trainee.setTrainers(new HashSet<>(updatedList));
+
+            traineeRepository.save(trainee);
+            log.info("Successfully updated trainee's list of trainers for id '{}' with '{}' trainers", id, updatedList.size());
+
+        } else {
+            throw new NoSuchTraineeExistException("Trainee is not exist");
+        }
+
+        List<TrainerResponseDTO> responseDTOS = updatedList.stream()
+                .map(trainer -> modelMapper.map(trainer, TrainerResponseDTO.class))
+                .toList();
+
+        responseDTOS.forEach(trainer -> {
+            trainer.setTrainees(null);
+            trainer.setIsActive(null);
+        });
+
+        return responseDTOS;
     }
 
 
-    public List<TrainerResponseDTO> getPotentialTrainersForTrainee( long id) {
+    public List<TrainerResponseDTO> getPotentialTrainersForTrainee(long id) {
         Optional<Trainee> traineeOpt = traineeRepository.findById(id);
 
         if (traineeOpt.isEmpty()) {
@@ -153,7 +178,7 @@ public class TraineeService {
         List<Trainer> allTrainers = trainerService.findAll();
         Set<Trainer> assignedTrainers = traineeOpt.get().getTrainers();
 
-        return  allTrainers.stream()
+        return allTrainers.stream()
                 .filter(trainer -> !assignedTrainers.contains(trainer))
                 .filter(trainer -> trainer.getUser().getIsActive())
                 .map(trainer -> modelMapper.map(trainer, TrainerResponseDTO.class))

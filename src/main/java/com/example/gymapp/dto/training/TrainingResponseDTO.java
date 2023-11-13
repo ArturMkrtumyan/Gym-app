@@ -1,11 +1,6 @@
 package com.example.gymapp.dto.training;
-
-import com.example.gymapp.model.Trainee;
-import com.example.gymapp.model.Trainer;
 import com.example.gymapp.model.TrainingType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
