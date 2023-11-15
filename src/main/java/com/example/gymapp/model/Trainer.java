@@ -15,10 +15,10 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"trainees"})
 public class Trainer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @MapsId
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
     @ManyToOne
     @JoinColumn(name = "specialization", referencedColumnName = "id")

@@ -1,6 +1,7 @@
 package com.example.gymapp.service;
 
 
+import com.example.gymapp.exception.UserNotFoundException;
 import com.example.gymapp.model.User;
 import com.example.gymapp.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -8,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 
 @Service
@@ -25,13 +24,9 @@ public class UserService {
             String clearedLastName = clearString(lastName);
             String newUsername = clearedFirstName + "." + clearedLastName;
 
-            List<String> usernames = userRepository.findUsernameOccurencies(newUsername);
-            OptionalInt max = usernames.stream()
-                    .map(s -> s.replace(newUsername, ""))
-                    .mapToInt(s -> s.isEmpty() ? 0 : Integer.parseInt(s))
-                    .max();
+            int maxOccurrence = userRepository.findMaxUsernameOccurrence(newUsername).orElse(0);
 
-            return max.isEmpty() ? newUsername : newUsername + (max.getAsInt() + 1);
+            return maxOccurrence == 0 ? newUsername : newUsername + (maxOccurrence + 1);
         } else {
             return "";
         }
@@ -43,18 +38,13 @@ public class UserService {
 
     @Transactional
     public boolean updatePassword(String username, String newPassword) {
-        try {
-            User user = userRepository.findByUsername(username).orElse(null);
-            if (user != null) {
-                user.setPassword(newPassword);
-                userRepository.save(user);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            return false;
-        }
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        User user = optionalUser.orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+
+        return true;
     }
 
     public Optional<User> findByUsername(String username) {

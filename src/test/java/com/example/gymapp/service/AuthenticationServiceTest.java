@@ -36,7 +36,7 @@ class AuthenticationServiceTest {
         when(userService.findByUsername(username)).thenReturn(Optional.of(user));
         when(user.getPassword()).thenReturn(password);
 
-        authenticationService.authenticate(userId, username, password);
+        authenticationService.authenticate( username, password);
 
         verify(userService, times(1)).findByUsername(username);
     }
@@ -51,7 +51,7 @@ class AuthenticationServiceTest {
         User user = new User();
         when(userService.findByUsername(username)).thenReturn(Optional.of(user));
 
-        assertThrows(NullPointerException.class, () -> authenticationService.authenticate(userId, username, password));
+        assertThrows(NullPointerException.class, () -> authenticationService.authenticate(username, password));
 
         verify(userService, times(1)).findByUsername(username);
     }
@@ -64,7 +64,7 @@ class AuthenticationServiceTest {
 
         when(userService.findByUsername(username)).thenReturn(Optional.empty());
 
-        assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate(userId, username, password));
+        assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate( username, password));
 
         verify(userService, times(1)).findByUsername(username);
     }
@@ -85,7 +85,7 @@ class AuthenticationServiceTest {
         when(userService.findByUsername(requestDTO.getUsername())).thenReturn(Optional.of(mockUser));
         when(userService.updatePassword(anyString(), anyString())).thenReturn(true);
 
-        authenticationService.updatePassword(userId, requestDTO);
+        authenticationService.updatePassword(requestDTO);
 
         verify(userService, times(1)).updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword());
     }
@@ -105,7 +105,7 @@ class AuthenticationServiceTest {
         when(userService.findByUsername(requestDTO.getUsername())).thenReturn(Optional.of(mockUser));
         when(userService.updatePassword(anyString(), anyString())).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> authenticationService.updatePassword(userId, requestDTO));
+        assertThrows(NotFoundException.class, () -> authenticationService.updatePassword(requestDTO));
 
         verify(userService, times(1)).findByUsername(requestDTO.getUsername());
         verify(userService, times(1)).updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword());

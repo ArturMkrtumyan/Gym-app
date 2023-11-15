@@ -30,7 +30,7 @@ public final class AuthController {
     public ResponseEntity<User> login(@PathVariable("id") Long id, @RequestBody @Valid AuthDTO authDTO) {
         var user = modelMapper.map(authDTO, User.class);
 
-        authService.authenticate(id, user.getUsername(), user.getPassword());
+        authService.authenticate(user.getUsername(), user.getPassword());
         log.info("User authentication succeeded for ID: {}", id);
         return ResponseEntity.ok().build();
     }
@@ -41,7 +41,7 @@ public final class AuthController {
                     @ApiResponse(responseCode = "200", description = "User changed password successfully"),
                     @ApiResponse(responseCode = "401", description = "Bad credentials")})
     public ResponseEntity<AuthDTO> changePassword(@PathVariable("id") Long id, @RequestBody @Valid PasswordChangeRequestDTO requestDTO) {
-        authService.updatePassword(id, requestDTO);
+        authService.updatePassword(requestDTO);
         log.info("Password changed successfully for user with ID: {}", id);
         return ResponseEntity.ok().build();
     }

@@ -11,5 +11,6 @@ public class TrainingMapper extends PropertyMap<Training, TrainingResponseDTO> {
         map().setTrainingType(source.getTrainingType());
         map().setTrainingDuration(source.getTrainingDuration());
         map().setTrainerName(source.getTrainer().getUser().getFirstName());
+        map().setTraineeName(source.getTrainee().getUser().getFirstName());
     }
 }

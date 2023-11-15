@@ -121,7 +121,7 @@ class TraineeServiceTest {
         existingTrainee.setTrainers(trainers);
 
         when(traineeRepository.findByUserUsername("testUsername")).thenReturn(Optional.of(existingTrainee));
-        doNothing().when(authenticationService).authenticate(1L, "testUsername", "testPassword");
+        doNothing().when(authenticationService).authenticate( "testUsername", "testPassword");
 
         TraineeResponseDTO result = traineeService.updateTrainee(traineeDTO);
 
@@ -136,7 +136,7 @@ class TraineeServiceTest {
         assertEquals(existingTrainee.getTrainers(), result.getTrainers());
 
         verify(traineeRepository, times(1)).findByUserUsername("testUsername");
-        verify(authenticationService, times(1)).authenticate(1L, "testUsername", "testPassword");
+        verify(authenticationService, times(1)).authenticate("testUsername", "testPassword");
         verify(traineeRepository, times(1)).save(existingTrainee);
         verify(modelMapper, times(1)).map(existingTrainee.getUser(), UserDto.class);
     }
@@ -152,12 +152,12 @@ class TraineeServiceTest {
         trainee.setId(traineeId);
 
         when(traineeRepository.findById(eq(traineeId))).thenReturn(Optional.of(trainee));
-        doNothing().when(authenticationService).authenticate(eq(traineeId), eq(authDTO.getUsername()), eq(authDTO.getPassword()));
+        doNothing().when(authenticationService).authenticate( eq(authDTO.getUsername()), eq(authDTO.getPassword()));
 
         traineeService.deleteTrainee(traineeId, authDTO);
 
         verify(traineeRepository, times(1)).findById(eq(traineeId));
-        verify(authenticationService, times(1)).authenticate(eq(traineeId), eq(authDTO.getUsername()), eq(authDTO.getPassword()));
+        verify(authenticationService, times(1)).authenticate( eq(authDTO.getUsername()), eq(authDTO.getPassword()));
         verify(traineeRepository, times(1)).delete(eq(trainee));
     }
     @Test
@@ -172,7 +172,7 @@ class TraineeServiceTest {
 
         assertThrows(TraineeNotFoundException.class, () -> traineeService.deleteTrainee(traineeId, authDTO));
 
-        verify(authenticationService, never()).authenticate(any(), any(), any());
+        verify(authenticationService, never()).authenticate(any(), any());
         verify(traineeRepository, never()).delete(any());
     }
 

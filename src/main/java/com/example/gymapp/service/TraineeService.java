@@ -12,10 +12,10 @@ import com.example.gymapp.exception.NoSuchTraineeExistException;
 import com.example.gymapp.exception.TraineeNotFoundException;
 import com.example.gymapp.model.Trainee;
 import com.example.gymapp.model.Trainer;
+import com.example.gymapp.model.Training;
 import com.example.gymapp.model.User;
 import com.example.gymapp.repository.TraineeRepository;
 import com.example.gymapp.repository.UserRepository;
-import com.example.gymapp.util.TrainingFilterUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,18 +33,18 @@ public class TraineeService {
     private final AuthenticationService authenticationService;
     private final TrainerService trainerService;
     private final UserRepository userRepository;
-    private final TrainingFilterUtil trainingFilterUtil;
 
     public AuthDTO createTrainee(TraineeCreateRequestDTO traineeDTO) {
         String username = userService.generateUsername(traineeDTO.getFirstName(), traineeDTO.getLastName());
         String password = userService.generatePassword();
 
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        newUser.setFirstName(traineeDTO.getFirstName());
-        newUser.setLastName(traineeDTO.getLastName());
-        newUser.setIsActive(true);
+        User newUser = User.builder()
+                .username(username)
+                .password(password)
+                .firstName(traineeDTO.getFirstName())
+                .lastName(traineeDTO.getLastName())
+                .isActive(true)
+                .build();
 
         User savedUser = userRepository.save(newUser);
 
@@ -62,9 +62,11 @@ public class TraineeService {
     }
 
     public TraineeResponseDTO updateTrainee(TraineeRequestDTO traineeDTO) {
+        authenticationService.authenticate(traineeDTO.getUsername(), traineeDTO.getPassword());
+
         Trainee existingTrainee = traineeRepository.findByUserUsername(traineeDTO.getUsername())
                 .orElseThrow(() -> new TraineeNotFoundException("Trainee not found for username: " + traineeDTO.getUsername()));
-        authenticationService.authenticate(existingTrainee.getUser().getId(), traineeDTO.getUsername(), traineeDTO.getPassword());
+        authenticationService.authenticate( traineeDTO.getUsername(), traineeDTO.getPassword());
 
         User user = existingTrainee.getUser();
         user.setFirstName(traineeDTO.getFirstName());
@@ -89,7 +91,7 @@ public class TraineeService {
 
     public TraineeResponseDTO getTraineeProfile(AuthDTO authDTO) {
         Trainee trainee = traineeRepository.findByUserUsername(authDTO.getUsername()).orElseThrow();
-        authenticationService.authenticate(trainee.getUser().getId(), authDTO.getUsername(), authDTO.getPassword());
+        authenticationService.authenticate(authDTO.getUsername(), authDTO.getPassword());
 
         TraineeResponseDTO responseDTO = new TraineeResponseDTO();
         UserDto userDto = modelMapper.map(trainee.getUser(), UserDto.class);
@@ -100,13 +102,12 @@ public class TraineeService {
         return responseDTO;
     }
 
-
     @Transactional
     public void changeActivationStatus(Long id, Boolean isActive, AuthDTO authDTO) {
         Trainee trainee = traineeRepository.findById(id)
                 .orElseThrow(() -> new TraineeNotFoundException("Trainee not found with ID: " + id));
 
-        authenticationService.authenticate(id, authDTO.getUsername(), authDTO.getPassword());
+        authenticationService.authenticate( authDTO.getUsername(), authDTO.getPassword());
 
         trainee.getUser().setIsActive(isActive);
         traineeRepository.save(trainee);
@@ -117,25 +118,31 @@ public class TraineeService {
         Trainee trainee = traineeRepository.findById(id)
                 .orElseThrow(() -> new TraineeNotFoundException("Trainee not found with ID: " + id));
 
-        authenticationService.authenticate(id, authDTO.getUsername(), authDTO.getPassword());
+        authenticationService.authenticate(authDTO.getUsername(), authDTO.getPassword());
 
         traineeRepository.delete(trainee);
     }
 
 
     public List<TrainingResponseDTO> getTrainingsWithFiltering(Long id, TrainingGetListRequestDTO requestDTO) {
-        authenticationService.authenticate(id, requestDTO.getUsername(), requestDTO.getPassword());
+        authenticationService.authenticate( requestDTO.getUsername(), requestDTO.getPassword());
 
-        Trainee trainee = traineeRepository.findById(id)
-                .orElseThrow(() -> new TraineeNotFoundException("Trainee not found with id: " + id));
+        if (!traineeRepository.existsById(id)) {
+            throw new TraineeNotFoundException("Trainee not found with id: " + id);
+        }
+        List<Training> filteredTrainings = traineeRepository.findTrainingsByTraineeWithFiltering(
+                id,
+                requestDTO.getPeriodFrom(),
+                requestDTO.getPeriodTo(),
+                requestDTO.getTrainerName(),
+                requestDTO.getTrainingType()
+        );
 
-        return trainee.getTrainingList().stream()
-                .filter(training -> trainingFilterUtil.isTrainingWithinPeriod(training, requestDTO.getPeriodFrom(), requestDTO.getPeriodTo()))
-                .filter(training -> trainingFilterUtil.isTrainingMatchingTrainer(training, requestDTO.getTrainerName()))
-                .filter(training -> trainingFilterUtil.isTrainingMatchingTrainingType(training, requestDTO.getTrainingType()))
+        return filteredTrainings.stream()
                 .map(training -> modelMapper.map(training, TrainingResponseDTO.class))
                 .toList();
     }
+
 
     @Transactional
     public List<TrainerResponseDTO> updateTrainerList( Long id, TraineeRequestDTO traineeRequestDTO) {

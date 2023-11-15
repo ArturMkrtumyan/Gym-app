@@ -15,4 +15,5 @@ public class TrainingResponseDTO {
     private TrainingType trainingType;
     private Integer trainingDuration;
     private String trainerName;
+    private String traineeName;
 }

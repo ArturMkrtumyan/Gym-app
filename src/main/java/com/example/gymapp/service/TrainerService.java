@@ -9,18 +9,18 @@ import com.example.gymapp.dto.training.TrainingResponseDTO;
 import com.example.gymapp.exception.NoSuchTrainerExistException;
 import com.example.gymapp.exception.TrainerNotFoundException;
 import com.example.gymapp.model.Trainer;
+import com.example.gymapp.model.Training;
 import com.example.gymapp.model.TrainingType;
 import com.example.gymapp.model.User;
 import com.example.gymapp.repository.TrainerRepository;
 import com.example.gymapp.repository.TrainingTypeRepository;
 import com.example.gymapp.repository.UserRepository;
-import com.example.gymapp.util.TrainingFilterUtil;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,7 +35,6 @@ public class TrainerService {
     private final TrainingTypeRepository trainingTypeRepository;
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
-    private final TrainingFilterUtil trainingFilterUtil;
 
 
     public AuthDTO createTrainer(TrainerRequestDTO trainerRequestDTO) {
@@ -73,17 +72,18 @@ public class TrainerService {
     public TrainerResponseDTO getTrainerProfile(AuthDTO authDTO) {
         Trainer trainer = trainerRepository.findByUserUsername(authDTO.getUsername())
                 .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with username: " + authDTO.getUsername()));
-        authenticationService.authenticate(trainer.getUser().getId(), authDTO.getUsername(), authDTO.getPassword());
+        authenticationService.authenticate( authDTO.getUsername(), authDTO.getPassword());
         return modelMapper.map(trainer, TrainerResponseDTO.class);
     }
 
 
     public TrainerResponseDTO updateTrainer(UpdateTrainerDto updateTrainerDto) {
+        authenticationService.authenticate(updateTrainerDto.getUsername(), updateTrainerDto.getPassword());
         Trainer existingTrainer = trainerRepository.findTrainerProfileByUsername(updateTrainerDto.getUsername());
 
         modelMapper.map(updateTrainerDto, existingTrainer);
 
-        authenticationService.authenticate(existingTrainer.getUser().getId(), existingTrainer.getUser().getUsername(), updateTrainerDto.getPassword());
+        authenticationService.authenticate( existingTrainer.getUser().getUsername(), updateTrainerDto.getPassword());
 
         Trainer updatedTrainer = trainerRepository.save(existingTrainer);
 
@@ -95,22 +95,28 @@ public class TrainerService {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with ID: " + id));
 
-        authenticationService.authenticate(id, authDTO.getUsername(), authDTO.getPassword());
+        authenticationService.authenticate( authDTO.getUsername(), authDTO.getPassword());
 
         trainer.getUser().setIsActive(isActive);
         trainerRepository.save(trainer);
     }
 
     public List<TrainingResponseDTO> getTrainingsWithFiltering(Long id, TrainingGetListRequestDTO requestDTO) {
-        authenticationService.authenticate(id, requestDTO.getUsername(), requestDTO.getPassword());
+        authenticationService.authenticate(requestDTO.getUsername(), requestDTO.getPassword());
 
-        Trainer trainer = trainerRepository.findById(id)
-                .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with id: " + id));
+        if (!trainerRepository.existsById(id)) {
+            throw new TrainerNotFoundException("Trainer not found with id: " + id);
+        }
 
-        return trainer.getTrainingList().stream()
-                .filter(training -> trainingFilterUtil.isTrainingWithinPeriod(training, requestDTO.getPeriodFrom(), requestDTO.getPeriodTo()))
-                .filter(training -> trainingFilterUtil.isTrainingMatchingTrainer(training, requestDTO.getTrainerName()))
-                .filter(training -> trainingFilterUtil.isTrainingMatchingTrainingType(training, requestDTO.getTrainingType()))
+        List<Training> filteredTrainings = trainerRepository.findTrainingsByTrainerWithFiltering(
+                id,
+                requestDTO.getPeriodFrom(),
+                requestDTO.getPeriodTo(),
+                requestDTO.getTraineeName(),
+                requestDTO.getTrainingType()
+        );
+
+        return filteredTrainings.stream()
                 .map(training -> modelMapper.map(training, TrainingResponseDTO.class))
                 .toList();
     }

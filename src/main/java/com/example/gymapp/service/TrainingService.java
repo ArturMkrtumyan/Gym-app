@@ -10,7 +10,6 @@ import com.example.gymapp.repository.TrainingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,25 +19,23 @@ public class TrainingService {
     private final TrainingRepository trainingRepository;
 
     public Training createTraining(TrainingCreateRequestDTO trainingDTO) {
+        Trainee trainee = traineeService.findByUsername(trainingDTO.getTraineeUsername())
+                .orElseThrow(() -> new NoSuchTraineeExistException("Trainee with username '" + trainingDTO.getTraineeUsername() + "' does not exist."));
 
-        Optional<Trainee> traineeOpt = traineeService.findByUsername(trainingDTO.getTraineeUsername());
-        if (traineeOpt.isEmpty()) {
-            throw new NoSuchTraineeExistException("Trainee with username '" + trainingDTO.getTraineeUsername() + "' does not exist.");
-        }
+        Trainer trainer = trainerService.findByUsername(trainingDTO.getTrainerUsername())
+                .orElseThrow(() -> new NoSuchTrainerExistException("Trainer with username '" + trainingDTO.getTrainerUsername() + "' does not exist."));
 
-        Optional<Trainer> trainerOpt = trainerService.findByUsername(trainingDTO.getTrainerUsername());
-        if (trainerOpt.isEmpty()) {
-            throw new NoSuchTrainerExistException("Trainer with username '" + trainingDTO.getTrainerUsername() + "' does not exist.");
-
-        }
         Training newTraining = new Training();
-        newTraining.setTrainee(traineeOpt.get());
-        newTraining.setTrainer(trainerOpt.get());
+        newTraining.setTrainee(trainee);
+        newTraining.setTrainer(trainer);
         newTraining.setTrainingName(trainingDTO.getTrainingName());
-        newTraining.setTrainingType(trainerOpt.get().getSpecialization());
+        newTraining.setTrainingType(trainer.getSpecialization());
         newTraining.setTrainingDate(trainingDTO.getTrainingDate());
         newTraining.setTrainingDuration(trainingDTO.getTrainingDuration());
+
         trainingRepository.save(newTraining);
+
         return newTraining;
     }
+
 }
