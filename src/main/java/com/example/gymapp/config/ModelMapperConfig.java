@@ -1,8 +1,6 @@
 package com.example.gymapp.config;
 
-import com.example.gymapp.mapper.TrainerResponseDTOMapping;
-import com.example.gymapp.mapper.TrainingMapper;
-import com.example.gymapp.mapper.UpdateTrainerDtoToTrainerMapping;
+import com.example.gymapp.mapper.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +16,9 @@ public class ModelMapperConfig {
         modelMapper.addMappings(new TrainerResponseDTOMapping());
         modelMapper.addMappings(new UpdateTrainerDtoToTrainerMapping());
         modelMapper.addMappings(new TrainingMapper());
+        modelMapper.addMappings(new UpdateTraineeTrainerMapping());
+        modelMapper.addMappings(new UpdateTraineeMapping());
+        modelMapper.addMappings(new TraineeTraineeResponseDTOMapping());
         return modelMapper;
     }
 }

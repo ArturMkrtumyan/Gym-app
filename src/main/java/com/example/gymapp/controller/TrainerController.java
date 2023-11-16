@@ -30,7 +30,7 @@ public class TrainerController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Trainer created successfully"),
                     @ApiResponse(responseCode = "422", description = "Bad input, check body for error messages")})
-    public ResponseEntity<?> create(@Valid @RequestBody TrainerRequestDTO trainerRequestDTO) {
+    public ResponseEntity<AuthDTO> create(@Valid @RequestBody TrainerRequestDTO trainerRequestDTO) {
         var responseDTO = trainerService.createTrainer(trainerRequestDTO);
 
         log.info("Trainer created successfully. Status: {}", HttpStatus.CREATED);

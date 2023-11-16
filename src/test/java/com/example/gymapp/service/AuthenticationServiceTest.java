@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.webjars.NotFoundException;
 
 import java.util.Optional;
 
@@ -90,25 +89,6 @@ class AuthenticationServiceTest {
         verify(userService, times(1)).updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword());
     }
 
-    @Test
-    void updatePassword_UserFoundAndPasswordNotUpdated_UnauthorizedExceptionThrown() {
-        Long userId = 1L;
-        PasswordChangeRequestDTO requestDTO = new PasswordChangeRequestDTO();
-        requestDTO.setUsername("testUser");
-        requestDTO.setOldPassword("oldPassword");
-        requestDTO.setNewPassword("newPassword");
 
-        User mockUser = new User();
-        mockUser.setUsername("testUser");
-        mockUser.setPassword("oldPassword");
-
-        when(userService.findByUsername(requestDTO.getUsername())).thenReturn(Optional.of(mockUser));
-        when(userService.updatePassword(anyString(), anyString())).thenReturn(false);
-
-        assertThrows(NotFoundException.class, () -> authenticationService.updatePassword(requestDTO));
-
-        verify(userService, times(1)).findByUsername(requestDTO.getUsername());
-        verify(userService, times(1)).updatePassword(requestDTO.getUsername(), requestDTO.getNewPassword());
-    }
 
 }

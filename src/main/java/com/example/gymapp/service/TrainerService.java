@@ -43,12 +43,13 @@ public class TrainerService {
 
         TrainingType specialization = trainingTypeRepository.findById(trainerRequestDTO.getSpecialization())
                 .orElseThrow(() -> new EntityNotFoundException("TrainingType not found with ID: " + trainerRequestDTO.getSpecialization()));
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        newUser.setFirstName(trainerRequestDTO.getFirstName());
-        newUser.setLastName(trainerRequestDTO.getLastName());
-        newUser.setIsActive(true);
+        User newUser = User.builder()
+                .username(username)
+                .password(password)
+                .firstName(trainerRequestDTO.getFirstName())
+                .lastName(trainerRequestDTO.getLastName())
+                .isActive(true)
+                .build();
         userRepository.save(newUser);
 
         Trainer newTrainer = modelMapper.map(trainerRequestDTO, Trainer.class);
@@ -82,9 +83,6 @@ public class TrainerService {
         Trainer existingTrainer = trainerRepository.findTrainerProfileByUsername(updateTrainerDto.getUsername());
 
         modelMapper.map(updateTrainerDto, existingTrainer);
-
-        authenticationService.authenticate( existingTrainer.getUser().getUsername(), updateTrainerDto.getPassword());
-
         Trainer updatedTrainer = trainerRepository.save(existingTrainer);
 
         return modelMapper.map(updatedTrainer, TrainerResponseDTO.class);
@@ -92,10 +90,10 @@ public class TrainerService {
 
     @Transactional
     public void changeActivationStatus(Long id, Boolean isActive, AuthDTO authDTO) {
+        authenticationService.authenticate( authDTO.getUsername(), authDTO.getPassword());
+
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with ID: " + id));
-
-        authenticationService.authenticate( authDTO.getUsername(), authDTO.getPassword());
 
         trainer.getUser().setIsActive(isActive);
         trainerRepository.save(trainer);

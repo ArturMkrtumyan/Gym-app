@@ -25,13 +25,14 @@ public class TrainingService {
         Trainer trainer = trainerService.findByUsername(trainingDTO.getTrainerUsername())
                 .orElseThrow(() -> new NoSuchTrainerExistException("Trainer with username '" + trainingDTO.getTrainerUsername() + "' does not exist."));
 
-        Training newTraining = new Training();
-        newTraining.setTrainee(trainee);
-        newTraining.setTrainer(trainer);
-        newTraining.setTrainingName(trainingDTO.getTrainingName());
-        newTraining.setTrainingType(trainer.getSpecialization());
-        newTraining.setTrainingDate(trainingDTO.getTrainingDate());
-        newTraining.setTrainingDuration(trainingDTO.getTrainingDuration());
+        Training newTraining = Training.builder()
+                .trainee(trainee)
+                .trainer(trainer)
+                .trainingName(trainingDTO.getTrainingName())
+                .trainingType(trainer.getSpecialization())
+                .trainingDate(trainingDTO.getTrainingDate())
+                .trainingDuration(trainingDTO.getTrainingDuration())
+                .build();
 
         trainingRepository.save(newTraining);
 

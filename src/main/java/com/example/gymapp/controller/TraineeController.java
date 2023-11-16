@@ -4,6 +4,7 @@ import com.example.gymapp.dto.auth.AuthDTO;
 import com.example.gymapp.dto.trainee.TraineeCreateRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeRequestDTO;
 import com.example.gymapp.dto.trainee.TraineeResponseDTO;
+import com.example.gymapp.dto.trainee.UpdateTraineeTrainersResponseDTO;
 import com.example.gymapp.dto.trainer.TrainerResponseDTO;
 import com.example.gymapp.dto.training.TrainingGetListRequestDTO;
 import com.example.gymapp.dto.training.TrainingResponseDTO;
@@ -43,9 +44,7 @@ public class TraineeController {
     @Operation(summary = "Update Trainee profile",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Trainee profile updated successfully"),
-                    @ApiResponse(responseCode = "404", description = "Trainee not found"),
-                    @ApiResponse(responseCode = "422", description = "Bad input, check body for error messages")
-            })
+                    @ApiResponse(responseCode = "404", description = "Trainee not found"),})
     public ResponseEntity<TraineeResponseDTO> updateTrainee(@Valid @RequestBody TraineeRequestDTO traineeDTO) {
         var responseDTO = traineeService.updateTrainee(traineeDTO);
 
@@ -109,8 +108,8 @@ public class TraineeController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "List of trainers successfully updated"),
                     @ApiResponse(responseCode = "404", description = "Trainee not found")})
-    public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainerList(@PathVariable("id") Long id,
-                                                                             @RequestBody TraineeRequestDTO traineeDTO) {
+    public ResponseEntity<List<UpdateTraineeTrainersResponseDTO>> updateTraineeTrainerList(@PathVariable("id") Long id,
+                                                                                           @RequestBody TraineeRequestDTO traineeDTO) {
         var updatedTrainersList = traineeService.updateTrainerList(id, traineeDTO);
 
         return ResponseEntity.ok(updatedTrainersList);
