@@ -17,7 +17,7 @@ public class Trainer {
     @Id
     private Long id;
     @MapsId
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id")
     private User user;
     @ManyToOne
